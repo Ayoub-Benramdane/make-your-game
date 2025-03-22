@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Space Invaders - Background</title>
+    <link href="https://fonts.googleapis.com/css?family=Audiowide|Press+Start+2P" rel="stylesheet">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #background-game {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        #game-container {
+            height: 600px;
+            width: 700px;
+            position: relative;
+            aspect-ratio: 700 / 600;
+            margin: auto;
+            border: 1px solid white;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .space-text {
+            position: absolute;
+            font-family: 'Press Start 2P', cursive;
+            color: white;
+            font-size: 25px;
+        }
+
+        #player {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            #game-container {
+                width: 100%;
+                /* Fill the width on small screens */
+                max-width: none;
+                /* Remove max-width constraint */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="background-game"></div>
+    <div id="game-container">
+        <img id="player" src="./img/spaceship.png">
+    </div>
+    <script src="./Scripts/background.js"></script>
+    <script src="./Scripts/index.js"></script>
+</body>
+
+</html>
