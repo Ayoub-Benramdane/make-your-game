@@ -7,9 +7,9 @@ const INVADER_MOVE_INTERVAL = 100;
 const INVADER_FIRE_INTERVAL = 600;
 const INITIAL_LIVES = 3;
 const GAME_DURATION = 60;
-let timer_death;
+let timerDeath;
 
-let map1 = {
+let level1 = {
     columns: 9,
     rows: 5,
     tiles: [
@@ -21,7 +21,7 @@ let map1 = {
     ],
 }
 
-let map2 = {
+let level2 = {
     columns: 9,
     rows: 6,
     tiles: [
@@ -34,7 +34,7 @@ let map2 = {
     ],
 }
 
-let map3 = {
+let level3 = {
     columns:7,
     rows: 8,
     tiles: [
@@ -51,7 +51,7 @@ let map3 = {
 // Game State
 const gameState = {
     player: document.querySelector('img'),
-    ecran: document.getElementById('game-container'),
+    screen: document.getElementById('game-container'),
     invaders: [],
     bullets: [],
     invaderBullets: [],
@@ -77,11 +77,11 @@ gameState.player.width = 90;
 gameState.player.height = 50;
 
 // Initialization
-function init(map) {
+function init(level) {
     setupPlayer();
     setupHeader();
     createHUD();
-    createInvaders(map);
+    createInvaders(level);
     updateGameState();
     gameLoop();
 }
@@ -89,8 +89,8 @@ function init(map) {
 function setupPlayer() {
     gameState.player.style.position = 'absolute';
     gameState.player.style.display = "block";
-    gameState.playerX = (gameState.ecran.offsetWidth - gameState.player.offsetWidth) / 2;
-    gameState.playerY = gameState.ecran.offsetHeight - gameState.player.offsetHeight;
+    gameState.playerX = (gameState.screen.offsetWidth - gameState.player.offsetWidth) / 2;
+    gameState.playerY = gameState.screen.offsetHeight - gameState.player.offsetHeight;
     positionPlayer();
 }
 
@@ -117,7 +117,7 @@ function createCountdown() {
             Timer: <span id="countdownValue">${gameState.countdown}</span>
         </p>`;
     countdownElement.style.cssText = 'position:absolute;top:10px;left:140px;font:bold 20px Arial;';
-    gameState.ecran.appendChild(countdownElement);
+    gameState.screen.appendChild(countdownElement);
 }
 
 function createScore() {
@@ -128,7 +128,7 @@ function createScore() {
             Score: <span id="scoreValue">${gameState.score}</span>
         </p>`;
     scoreElement.style.cssText = 'position:absolute;top:10px;left:20px;font:bold 20px Arial;';
-    gameState.ecran.appendChild(scoreElement);
+    gameState.screen.appendChild(scoreElement);
 }
 
 function createLives() {
@@ -138,7 +138,7 @@ function createLives() {
         const life = createLifeElement(i);
         livesContainer.appendChild(life);
     }
-    gameState.ecran.appendChild(livesContainer);
+    gameState.screen.appendChild(livesContainer);
 }
 
 function createLifeElement(index) {
@@ -149,7 +149,7 @@ function createLifeElement(index) {
         position: absolute;
         width: 30px;
         height: 30px;
-        transform: translate(${gameState.ecran.offsetWidth - (index + 1) * 40 - 30}px, 2px);
+        transform: translate(${gameState.screen.offsetWidth - (index + 1) * 40 - 30}px, 2px);
     `;
     return life;
 }
@@ -187,7 +187,7 @@ function createInvaders(map) {
         }
     }
 
-    gameState.ecran.appendChild(fragment);
+    gameState.screen.appendChild(fragment);
 }
 
 function createInvaderElement(row, col) {
@@ -215,7 +215,7 @@ function updateInvaders(timestamp) {
         invader.x = newX;
         invader.element.style.transform = `translate(${invader.x}px, ${invader.y}px)`;
 
-        if (newX > gameState.ecran.offsetWidth - 40 || newX < 10) {
+        if (newX > gameState.screen.offsetWidth - 40 || newX < 10) {
             shouldReverse = true;
         }
     });
@@ -225,7 +225,7 @@ function updateInvaders(timestamp) {
         gameState.invaders.forEach(invader => {
             invader.y += 10;
             invader.element.style.transform = `translate(${invader.x}px, ${invader.y}px)`;
-            if (invader.y > gameState.ecran.offsetHeight - 100) {
+            if (invader.y > gameState.screen.offsetHeight - 100) {
                 endGame(false);
             }
         });
@@ -248,7 +248,7 @@ function updateBullets() {
     gameState.invaderBullets = gameState.invaderBullets.filter(bullet => {
         bullet.y += INVADER_BULLET_SPEED;
         bullet.element.style.transform = `translate(${bullet.x}px, ${bullet.y}px)`;
-        return bullet.y < gameState.ecran.offsetHeight;
+        return bullet.y < gameState.screen.offsetHeight;
     });
 }
 
@@ -257,8 +257,8 @@ function checkCollisions() {
     gameState.bullets.forEach((bullet, bulletIndex) => {
         gameState.invaders.forEach((invader, invaderIndex) => {
             if (checkCollision(bullet.element, invader.element)) {
-                gameState.ecran.removeChild(bullet.element);
-                gameState.ecran.removeChild(invader.element);
+                gameState.screen.removeChild(bullet.element);
+                gameState.screen.removeChild(invader.element);
                 gameState.bullets.splice(bulletIndex, 1);
                 gameState.invaders.splice(invaderIndex, 1);
                 gameState.score += 10;
@@ -271,7 +271,7 @@ function checkCollisions() {
     gameState.invaderBullets.forEach((bullet, index) => {
         if (checkCollision(bullet.element, gameState.player)) {
             handlePlayerHit();
-            gameState.ecran.removeChild(bullet.element);
+            gameState.screen.removeChild(bullet.element);
             gameState.invaderBullets.splice(index, 1);
         }
     });
@@ -304,7 +304,7 @@ function handlePlayerHit() {
 }
 
 function updateLivesDisplay() {
-    const livesContainer = gameState.ecran.querySelector('.life').parentElement;
+    const livesContainer = gameState.screen.querySelector('.life').parentElement;
     livesContainer.innerHTML = '';
     for (let i = 0; i < gameState.lives; i++) {
         livesContainer.appendChild(createLifeElement(i));
@@ -314,7 +314,7 @@ function updateLivesDisplay() {
 function updateGameState() {
     gameState.countdown--;
     if (gameState.countdown == 0) {
-        clearInterval(timer_death);
+        clearInterval(timerDeath);
         endGame(false);
     }
     document.getElementById('countdownValue').textContent = `${gameState.countdown}`;
@@ -322,7 +322,7 @@ function updateGameState() {
 
 function endGame(success) {
     gameState.isPaused = true;
-    clearInterval(timer_death);
+    clearInterval(timerDeath);
     showGameMenu(success);
 }
 
@@ -356,7 +356,7 @@ function showGameMenu(isVictory) {
     `;
 
     menu.querySelector('#restartButton').addEventListener('click', () => location.reload());
-    gameState.ecran.appendChild(menu);
+    gameState.screen.appendChild(menu);
 }
 
 function showPauseMenu() {
@@ -397,7 +397,7 @@ function showPauseMenu() {
         Continue(menu);
     });
 
-    gameState.ecran.appendChild(menu);
+    gameState.screen.appendChild(menu);
 }
 
 function choiceMap() {
@@ -422,66 +422,66 @@ function choiceMap() {
     map.innerHTML = `
         <div style="background-color: transparent; border-radius: 8px; border: 2px solid rgb(255, 255, 255); height: 40%; width: 30%">
             <div style="border: 2px solid rgb(255, 255, 255);">
-                <h2>Choice Map:</h2>
+                <h2>Choose Level:</h2>
             </div>
             <br><br>
             <label>
-                <input type="radio" name="map" id="map1Radio"> Map 1
+                <input type="radio" name="map" id="level1Radio"> Level 1
             </label><br>
             <label>
-                <input type="radio" name="map" id="map2Radio"> Map 2
+                <input type="radio" name="map" id="level2Radio"> Level 2
             </label><br>
             <label>
-                <input type="radio" name="map" id="map3Radio"> Map 3
+                <input type="radio" name="map" id="level3Radio"> Level 3
             </label>
             <br><br>
             <button id="startButton" style="cursor: pointer; border-radius: 8px; padding: 6px;">Start Game</button>
         </div>
     `;
-    gameState.ecran.appendChild(map);
+    gameState.screen.appendChild(map);
 
     map.querySelector('#startButton').addEventListener('click', () => {
         let selectedMap = null;
-        if (map.querySelector('#map1Radio').checked) {
-            selectedMap = 'Map 1';
-        } else if (map.querySelector('#map2Radio').checked) {
-            selectedMap = 'Map 2';
-        } else if (map.querySelector('#map3Radio').checked) {
-            selectedMap = 'Map 3';
+        if (map.querySelector('#level1Radio').checked) {
+            selectedMap = 'Level 1';
+        } else if (map.querySelector('#level2Radio').checked) {
+            selectedMap = 'Level 2';
+        } else if (map.querySelector('#level3Radio').checked) {
+            selectedMap = 'Level 3';
         }
 
         if (selectedMap) {
             displayMapSelect(selectedMap);
             map.remove();
         } else {
-            alert('Please select a map.');
+            alert('Please select a level.');
         }
     });
 }
 
 function displayMapSelect(selectedMap) {
-    timer_death = setInterval(updateGameState, 1000);
-    if (selectedMap === 'Map 1') {
-        gameState.ecran.style.backgroundImage = "url('img/background.png')";
-        gameState.ecran.style.backgroundSize = "200% 200%";
-        init(map1);
-    } else if (selectedMap === 'Map 2') {
-        gameState.ecran.style.backgroundImage = "url('img/background.png')";
-        gameState.ecran.style.backgroundPositionX = "100%"
-        gameState.ecran.style.backgroundSize = "200% 200%";
-        init(map2);
-    } else if (selectedMap === 'Map 3') {
-        gameState.ecran.style.backgroundImage = "url('img/background.png')";
-        gameState.ecran.style.backgroundPositionY = "100%"
-        gameState.ecran.style.backgroundSize = "200% 200%";
-        init(map3);
+    timerDeath = setInterval(updateGameState, 1000);
+    if (selectedMap === 'Level 1') {
+        gameState.screen.style.backgroundImage = "url('img/background.png')";
+        gameState.screen.style.backgroundSize = "200% 200%";
+        init(level1);
+    } else if (selectedMap === 'Level 2') {
+        gameState.screen.style.backgroundImage = "url('img/background.png')";
+        gameState.screen.style.backgroundPositionX = "100%"
+        gameState.screen.style.backgroundSize = "200% 200%";
+        init(level2);
+    } else if (selectedMap === 'Level 3') {
+        gameState.screen.style.backgroundImage = "url('img/background.png')";
+        gameState.screen.style.backgroundPositionY = "100%"
+        gameState.screen.style.backgroundSize = "200% 200%";
+        init(level3);
     }
 }
 
 function Continue(menu) {
     gameState.isPaused = false;
-    gameState.ecran.removeChild(menu);
-    timer_death = setInterval(updateGameState, 1000);
+    gameState.screen.removeChild(menu);
+    timerDeath = setInterval(updateGameState, 1000);
 }
 
 function resetGame() {
@@ -512,7 +512,7 @@ function fireBullet() {
     const bulletY = gameState.playerY - 15;
     bullet.style.transform = `translate(${bulletX}px, ${bulletY}px)`;
 
-    gameState.ecran.appendChild(bullet);
+    gameState.screen.appendChild(bullet);
     gameState.bullets.push({
         element: bullet,
         x: bulletX,
@@ -535,7 +535,7 @@ function invaderFiring() {
     const bulletY = invader.y + 50;
     bullet.style.transform = `translate(${bulletX}px, ${bulletY}px)`;
 
-    gameState.ecran.appendChild(bullet);
+    gameState.screen.appendChild(bullet);
     gameState.invaderBullets.push({
         element: bullet,
         x: bulletX,
@@ -545,7 +545,7 @@ function invaderFiring() {
 
 function togglePause() {
     gameState.isPaused = true;
-    clearInterval(timer_death);
+    clearInterval(timerDeath);
     showPauseMenu();
     if (!gameState.isPaused) gameLoop();
 }
@@ -553,7 +553,7 @@ function togglePause() {
 function handleResize() {
     gameState.playerX = Math.min(
         Math.max(30, gameState.playerX),
-        gameState.ecran.offsetWidth - gameState.player.offsetWidth - 30
+        gameState.screen.offsetWidth - gameState.player.offsetWidth - 30
     );
     positionPlayer();
 }
@@ -664,7 +664,7 @@ function animate() {
         gameState.playerX = Math.max(4, gameState.playerX - PLAYER_SPEED);
     } else if (gameState.keys.ArrowRight === true && !gameState.isPaused) {
         gameState.playerX = Math.min(
-            gameState.ecran.offsetWidth - gameState.player.offsetWidth - 4,
+            gameState.screen.offsetWidth - gameState.player.offsetWidth - 4,
             gameState.playerX + PLAYER_SPEED
         );
     }

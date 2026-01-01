@@ -9,13 +9,13 @@ const INVADER_MOVE_INTERVAL = 100;
 const INVADER_FIRE_INTERVAL = 1000;
 const INITIAL_LIVES = 3;
 const GAME_DURATION = 60;
-let timer_death;
-let developmentShown = false;
+let timerDeath;
+let isDevelopmentShown = false;
 
 // Game State
 const gameState = {
     player: document.querySelector('img'),
-    ecran: document.getElementById('game-container'),
+    screen: document.getElementById('game-container'),
     invaders: [],
     bullets: [],
     invaderBullets: [],
@@ -53,8 +53,8 @@ function init() {
 function setupPlayer() {
     gameState.player.style.position = 'absolute';
     gameState.player.style.display = "block";
-    gameState.playerX = (gameState.ecran.offsetWidth - gameState.player.offsetWidth) / 2;
-    gameState.playerY = gameState.ecran.offsetHeight - gameState.player.offsetHeight;
+    gameState.playerX = (gameState.screen.offsetWidth - gameState.player.offsetWidth) / 2;
+    gameState.playerY = gameState.screen.offsetHeight - gameState.player.offsetHeight;
     positionPlayer();
 }
 
@@ -81,7 +81,7 @@ function createCountdown() {
             Timer: <span id="countdownValue">${gameState.countdown}</span>
         </p>`;
     countdownElement.style.cssText = 'position:absolute;top:10px;left:140px;font:bold 20px Arial;';
-    gameState.ecran.appendChild(countdownElement);
+    gameState.screen.appendChild(countdownElement);
 }
 
 function createScore() {
@@ -92,7 +92,7 @@ function createScore() {
             Score: <span id="scoreValue">${gameState.score}</span>
         </p>`;
     scoreElement.style.cssText = 'position:absolute;top:10px;left:20px;font:bold 20px Arial;';
-    gameState.ecran.appendChild(scoreElement);
+    gameState.screen.appendChild(scoreElement);
 }
 
 function createLives() {
@@ -102,7 +102,7 @@ function createLives() {
         const life = createLifeElement(i);
         livesContainer.appendChild(life);
     }
-    gameState.ecran.appendChild(livesContainer);
+    gameState.screen.appendChild(livesContainer);
 }
 
 function createLifeElement(index) {
@@ -113,7 +113,7 @@ function createLifeElement(index) {
         position: absolute;
         width: 30px;
         height: 30px;
-        transform: translate(${gameState.ecran.offsetWidth - (index + 1) * 40 - 30}px, 2px);
+        transform: translate(${gameState.screen.offsetWidth - (index + 1) * 40 - 30}px, 2px);
     `;
     return life;
 }
@@ -131,7 +131,7 @@ function createInvaders() {
             });
         }
     }
-    gameState.ecran.appendChild(fragment);
+    gameState.screen.appendChild(fragment);
 }
 
 function createInvaderElement(row, col) {
@@ -159,7 +159,7 @@ function updateInvaders(timestamp) {
         invader.x = newX;
         invader.element.style.transform = `translate(${invader.x}px, ${invader.y}px)`;
 
-        if (newX > gameState.ecran.offsetWidth - 40 || newX < 10) {
+        if (newX > gameState.screen.offsetWidth - 40 || newX < 10) {
             shouldReverse = true;
         }
     });
@@ -169,15 +169,15 @@ function updateInvaders(timestamp) {
         gameState.invaders.forEach(invader => {
             invader.y += 10;
             invader.element.style.transform = `translate(${invader.x}px, ${invader.y}px)`;
-            if (invader.y > gameState.ecran.offsetHeight - 100) {
+            if (invader.y > gameState.screen.offsetHeight - 100) {
                 endGame(false);
             }
         });
     }
-    if (!developmentShown && gameState.score >= 100) {
-        developmentShown = true;
+    if (!isDevelopmentShown && gameState.score >= 100) {
+        isDevelopmentShown = true;
         gameState.isPaused = true;
-        clearInterval(timer_death);
+        clearInterval(timerDeath);
         showDevelopment();
     }
 }
@@ -198,7 +198,7 @@ function updateBullets() {
     gameState.invaderBullets = gameState.invaderBullets.filter(bullet => {
         bullet.y += INVADER_BULLET_SPEED;
         bullet.element.style.transform = `translate(${bullet.x}px, ${bullet.y}px)`;
-        return bullet.y < gameState.ecran.offsetHeight;
+        return bullet.y < gameState.screen.offsetHeight;
     });
 }
 
@@ -207,8 +207,8 @@ function checkCollisions() {
     gameState.bullets.forEach((bullet, bulletIndex) => {
         gameState.invaders.forEach((invader, invaderIndex) => {
             if (checkCollision(bullet.element, invader.element)) {
-                gameState.ecran.removeChild(bullet.element);
-                gameState.ecran.removeChild(invader.element);
+                gameState.screen.removeChild(bullet.element);
+                gameState.screen.removeChild(invader.element);
                 gameState.bullets.splice(bulletIndex, 1);
                 gameState.invaders.splice(invaderIndex, 1);
                 gameState.score += 10;
@@ -221,7 +221,7 @@ function checkCollisions() {
     gameState.invaderBullets.forEach((bullet, index) => {
         if (checkCollision(bullet.element, gameState.player)) {
             handlePlayerHit();
-            gameState.ecran.removeChild(bullet.element);
+            gameState.screen.removeChild(bullet.element);
             gameState.invaderBullets.splice(index, 1);
         }
     });
@@ -254,7 +254,7 @@ function handlePlayerHit() {
 }
 
 function updateLivesDisplay() {
-    const livesContainer = gameState.ecran.querySelector('.life').parentElement;
+    const livesContainer = gameState.screen.querySelector('.life').parentElement;
     livesContainer.innerHTML = '';
     for (let i = 0; i < gameState.lives; i++) {
         livesContainer.appendChild(createLifeElement(i));
@@ -264,7 +264,7 @@ function updateLivesDisplay() {
 function updateGameState() {
     gameState.countdown--;
     if (gameState.countdown == 0) {
-        clearInterval(timer_death);
+        clearInterval(timerDeath);
         endGame(false);
     }
     document.getElementById('countdownValue').textContent = `${gameState.countdown}`;
@@ -272,7 +272,7 @@ function updateGameState() {
 
 function endGame(success) {
     gameState.isPaused = true;
-    clearInterval(timer_death);
+    clearInterval(timerDeath);
     showGameMenu(success);
 }
 
@@ -306,7 +306,7 @@ function showGameMenu(isVictory) {
     `;
 
     menu.querySelector('#restartButton').addEventListener('click', () => location.reload());
-    gameState.ecran.appendChild(menu);
+    gameState.screen.appendChild(menu);
 }
 
 function showPauseMenu() {
@@ -347,13 +347,13 @@ function showPauseMenu() {
         Continue(menu);
     });
 
-    gameState.ecran.appendChild(menu);
+    gameState.screen.appendChild(menu);
 }
 
 function Continue(menu) {
     gameState.isPaused = false;
-    gameState.ecran.removeChild(menu);
-    timer_death = setInterval(updateGameState, 1000);
+    gameState.screen.removeChild(menu);
+    timerDeath = setInterval(updateGameState, 1000);
 }
 
 function resetGame() {
@@ -400,11 +400,11 @@ function showDevelopment() {
         resetGame();
     });
     dev.querySelector('#continueButton').addEventListener('click', () => {
-        gameState.ecran.removeChild(dev);
+        gameState.screen.removeChild(dev);
         gameState.isPaused = false;
-        timer_death = setInterval(updateGameState, 1000);
+        timerDeath = setInterval(updateGameState, 1000);
     });
-    gameState.ecran.appendChild(dev);
+    gameState.screen.appendChild(dev);
 }
 
 function positionPlayer() {
@@ -424,7 +424,7 @@ function fireBullet() {
     const bulletY = gameState.playerY - 15;
     bullet.style.transform = `translate(${bulletX}px, ${bulletY}px)`;
 
-    gameState.ecran.appendChild(bullet);
+    gameState.screen.appendChild(bullet);
     gameState.bullets.push({
         element: bullet,
         x: bulletX,
@@ -447,7 +447,7 @@ function invaderFiring() {
     const bulletY = invader.y + 50;
     bullet.style.transform = `translate(${bulletX}px, ${bulletY}px)`;
 
-    gameState.ecran.appendChild(bullet);
+    gameState.screen.appendChild(bullet);
     gameState.invaderBullets.push({
         element: bullet,
         x: bulletX,
@@ -457,7 +457,7 @@ function invaderFiring() {
 
 function togglePause() {
     gameState.isPaused = true;
-    clearInterval(timer_death);
+    clearInterval(timerDeath);
     showPauseMenu();
     if (!gameState.isPaused) gameLoop();
 }
@@ -465,7 +465,7 @@ function togglePause() {
 function handleResize() {
     gameState.playerX = Math.min(
         Math.max(30, gameState.playerX),
-        gameState.ecran.offsetWidth - gameState.player.offsetWidth - 30
+        gameState.screen.offsetWidth - gameState.player.offsetWidth - 30
     );
     positionPlayer();
 }
@@ -573,7 +573,7 @@ function animate() {
         gameState.playerX = Math.max(4, gameState.playerX - PLAYER_SPEED);
     } else if (gameState.keys.ArrowRight === true && !gameState.isPaused) {
         gameState.playerX = Math.min(
-            gameState.ecran.offsetWidth - gameState.player.offsetWidth - 4,
+            gameState.screen.offsetWidth - gameState.player.offsetWidth - 4,
             gameState.playerX + PLAYER_SPEED
         );
     }
@@ -589,7 +589,7 @@ function animate() {
     if (gameState.keys.Enter === true) {
         if (!gameStart) {
             clearInterval(presStart);
-            timer_death = setInterval(updateGameState, 1000);
+            timerDeath = setInterval(updateGameState, 1000);
             init();
             gameLoop();
             gameStart = true;
